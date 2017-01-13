@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.MentionEvent;
+import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
@@ -35,9 +36,22 @@ public class Handlers
         String[] split = content.split(" +", 2);
         //split[0] contains @Fracktail. split[1] returns the actual message.
         if(split.length == 1){
-            Commands.reply(msg, "?");
+            Commands.say(msg, msg.getAuthor().mention() + "?");
         }
         else{
+            String stripped = split[1].trim();
+            Command ex = Commands.getCommand(stripped);
+            ex.doCommand(msg, stripped);
+        }
+    }
+    
+    @EventSubscriber
+    public void onMessage(MessageReceivedEvent message){
+        IMessage msg = message.getMessage();
+        String content = msg.getContent();
+        String[] split = content.split(" +", 2);
+        if(split[0].equalsIgnoreCase("f,")){
+            LOG.log(Level.INFO, "Mentioned by {0}:{1}", new Object[]{msg.getAuthor().getName(), msg.getContent()});
             String stripped = split[1].trim();
             Command ex = Commands.getCommand(stripped);
             ex.doCommand(msg, stripped);

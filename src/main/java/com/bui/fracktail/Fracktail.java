@@ -6,23 +6,32 @@
 package com.bui.fracktail;
 
 import com.bui.fracktail.commands.Commands;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RateLimitException;
 
 /**
  * The bot itself.
  * This is an enum, which guarantees a singleton.
+ * Using Fracktail:
+ * Fracktail is trained to respond to regex matches, rather than through
+ * the use of commands. The goal here is to allow more natural input to
+ * Fracktail, at the cost of a slightly more confusing backend.
+ * 
+ * To call him, you simply say "@Fracktail [command]".
+ * If you are particularly lazy, you may also say "F, [command]".
+ * 
+ * To modify the commands he knows, check out the Commands.initialize()
+ * method. To view the actual commands, I'll place them in the readme.
  * @author justislamanna
  */
 public enum Fracktail
 {
+    /**The instance of Fracktail.*/
     BOT;
     
     private final String TOKEN = System.getProperty("Token");
@@ -42,6 +51,9 @@ public enum Fracktail
         }
     }
     
+    /**
+     * Logs Fracktail in.
+     */
     public void login(){
         try{
             client.login();
@@ -54,6 +66,9 @@ public enum Fracktail
         }
     }
     
+    /**
+     * Logs Fracktail out, and stops program execution.
+     */
     public void logout(){
         try{
             client.logout();
@@ -64,7 +79,12 @@ public enum Fracktail
         }
     }
     
-    public IDiscordClient getClient(){
-        return client;
+    /**
+     * Get a channel Fracktail is connected to.
+     * @param id The ID of the channel.
+     * @return The channel object.
+     */
+    public IChannel getChannel(String id){
+        return client.getChannelByID(id);
     }
 }

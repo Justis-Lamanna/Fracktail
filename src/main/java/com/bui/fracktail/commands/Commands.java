@@ -31,9 +31,26 @@ public class Commands
     private static final Command NULL_COMMAND = 
             new Command("", null, 0, (msg, params) -> reply(msg, "I don't understand."));
     
+    /**
+     * Reply to a person.
+     * @param msg The message they sent.
+     * @param reply The reply to give.
+     */
     public static void reply(IMessage msg, String reply){
         try{
             msg.reply(reply);
+        } catch (MissingPermissionsException ex) {
+            LOG.log(Level.SEVERE, "Missing permissions.", ex);
+        } catch (RateLimitException ex) {
+            LOG.log(Level.SEVERE, "Rate limit exceeded.", ex);
+        } catch (DiscordException ex) {
+            LOG.log(Level.SEVERE, "General error.", ex);
+        }
+    }
+    
+    public static void say(IMessage msg, String reply){
+        try{
+            msg.getChannel().sendMessage(reply);
         } catch (MissingPermissionsException ex) {
             LOG.log(Level.SEVERE, "Missing permissions.", ex);
         } catch (RateLimitException ex) {
@@ -61,32 +78,14 @@ public class Commands
      * Loads all the commands into the maps.
      */
     public static void initialize(){
-        CMDS.add(new Command("add (\\S*) and (\\S*)", null, 0, 
-            (IMessage msg, String... params) -> {
-                try{
-                    long one = Long.parseLong(params[1]);
-                    long two = Long.parseLong(params[2]);
-                    reply(msg, String.format("The sum of %d and %d is %d.", one, two, one + two));
-                }
-                catch(NumberFormatException ex){
-                    try{
-                        double one = Double.parseDouble(params[1]);
-                        double two = Double.parseDouble(params[2]);
-                        reply(msg, String.format("The sum of %f and %f is %f.", one, two, one + two));
-                    }
-                    catch(NumberFormatException ex2){
-                        reply(msg, "You have to supply me with actual numbers...");
-                    }
-                }
-        }));
         CMDS.add(new Command("(log\\s*out|log\\s*off)", null, 0, 
             (IMessage msg, String... params) -> {
                 reply(msg, "Goodbye, sir.");
                 Fracktail.BOT.logout();
         }));
-        CMDS.add(new Command("clean up", null, 0, 
+        CMDS.add(new Command("clean.*up!*", null, 0, 
             (IMessage msg, String... params) -> {
-                IChannel channel = Fracktail.BOT.getClient().getChannelByID(msg.getChannel().getID());
+                IChannel channel = Fracktail.BOT.getChannel(msg.getChannel().getID());
                 MessageList messages = channel.getMessages();
                 try{
                     messages.deleteAfter(0);
