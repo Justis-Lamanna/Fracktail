@@ -31,7 +31,7 @@ public class Handlers
     @EventSubscriber
     public void onMention(MentionEvent mention){
         IMessage msg = mention.getMessage();
-        LOG.log(Level.INFO, "Mentioned by {0}:{1}", new Object[]{msg.getAuthor().getName(), msg.getContent()});
+        LOG.log(Level.INFO, "Mentioned by {0}({2}):{1}", new Object[]{msg.getAuthor().getName(), msg.getContent(), msg.getAuthor().getID()});
         String content = msg.getContent();
         String[] split = content.split(" +", 2);
         //split[0] contains @Fracktail. split[1] returns the actual message.
@@ -51,7 +51,7 @@ public class Handlers
         String content = msg.getContent();
         String[] split = content.split(" +", 2);
         if(split[0].equalsIgnoreCase("f,")){
-            LOG.log(Level.INFO, "Mentioned by {0}:{1}", new Object[]{msg.getAuthor().getName(), msg.getContent()});
+            LOG.log(Level.INFO, "Messaged by {0}({2}):{1}", new Object[]{msg.getAuthor().getName(), msg.getContent(), msg.getAuthor().getID()});
             String stripped = split[1].trim();
             Command ex = Commands.getCommand(stripped);
             ex.doCommand(msg, stripped);

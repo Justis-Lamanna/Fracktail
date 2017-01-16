@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IPrivateChannel;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RateLimitException;
 
@@ -86,5 +88,30 @@ public enum Fracktail
      */
     public IChannel getChannel(String id){
         return client.getChannelByID(id);
+    }
+    
+    /**
+     * Get a private channel.
+     * @param id The user's ID.
+     * @return The private channel.
+     */
+    public IPrivateChannel getPrivateChannel(String id){
+        try {
+            return client.getOrCreatePMChannel(client.getUserByID(id));
+        } catch (DiscordException ex) {
+            LOG.log(Level.SEVERE, "General error getting Private Channel.", ex);
+        } catch (RateLimitException ex) {
+            LOG.log(Level.SEVERE, "Rate limit exceeded.", ex);
+        }
+        return null;
+    }
+    
+    /**
+     * Get a user by their ID.
+     * @param id The ID.
+     * @return The user.
+     */
+    public IUser getUser(String id){
+        return client.getUserByID(id);
     }
 }
