@@ -114,4 +114,25 @@ public enum Fracktail
     public IUser getUser(String id){
         return client.getUserByID(id);
     }
+    
+    /**
+     * Get myself.
+     * @return Me.
+     */
+    public IUser getSelf(){
+        return client.getOurUser();
+    }
+    
+    /**
+     * Get my master.
+     * @return Master lucbui.
+     */
+    public IUser getMaster(){
+        try{
+            return client.getApplicationOwner();
+        } catch (DiscordException ex) {
+            LOG.log(Level.SEVERE, "Error getting app owner.", ex);
+            return null;
+        }
+    }
 }

@@ -7,12 +7,13 @@ package com.bui.fracktail.commands;
 
 import com.bui.fracktail.Fracktail;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sx.blah.discord.handle.impl.obj.PrivateChannel;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IPrivateChannel;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MessageList;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -104,8 +105,13 @@ public class Commands
     public static void initialize(){
         CMDS.add(new Command("log\\s*(out|off)", "I log off.", 2, 
             (IMessage msg, String... params) -> {
-                reply(msg, "Goodbye, sir.");
-                Fracktail.BOT.logout();
+                if(msg.getAuthor() == Fracktail.BOT.getMaster()){
+                    reply(msg, "Goodbye.");
+                    Fracktail.BOT.logout();
+                }
+                else{
+                    reply(msg, "No fuck you.");
+                }
         }));
         CMDS.add(new Command("clean.*up!*", "I remove the last 100 messages from the chat.", 2, 
             (IMessage msg, String... params) -> {
@@ -119,10 +125,10 @@ public class Commands
                 } catch (DiscordException ex) {
                     LOG.log(Level.SEVERE, "General error occured.", ex);
                 } catch (MissingPermissionsException ex) {
-                    reply(msg, "I don't have that ability here, sir.");
+                    reply(msg, "I don't have that ability here.");
                 }
         }));
-        CMDS.add(new Command("clean\\s+up\\s+and\\s+log\\s*(out|off)", null, 2, 
+        CMDS.add(new Command("clean\\s+up\\s+and\\s+log\\s*(out|off)", "I remove the last 100 messages in the chat and log off.", 2, 
                 (IMessage msg, String... params) -> {
                 IChannel channel = Fracktail.BOT.getChannel(msg.getChannel().getID());
                 MessageList messages = channel.getMessages();
@@ -134,14 +140,21 @@ public class Commands
                 } catch (DiscordException ex) {
                     LOG.log(Level.SEVERE, "General error occured.", ex);
                 } catch (MissingPermissionsException ex) {
-                    reply(msg, "I don't have that ability here, sir.");
+                    reply(msg, "I don't have that ability here.");
                 }
         }));
         Logic msgLogic = (msg, params) -> {
-            IPrivateChannel channel = Fracktail.BOT.getPrivateChannel(params[1]);
-            dm(channel, params[2]);};
-        CMDS.add(new Command("send\\s+a\\s+message\\s+to\\s+<@(\\S+)>\\s+saying\\s+(.+)", null, 0, msgLogic));
-        CMDS.add(new Command("message\\s+<@(\\S+)>\\s+saying\\s+(.+)", null, 0, msgLogic));
-        CMDS.add(new Command("send\\s+<@(\\S+)>\\s+a\\s+message\\s+saying\\s+(.+)", null, 0, msgLogic));
+            List<IUser> mentions = msg.getMentions();
+            mentions.remove(Fracktail.BOT.getSelf());
+            if(mentions.isEmpty()){
+                reply(msg, "I can't message myself.");
+            }
+            for(IUser i : mentions){
+                IPrivateChannel channel = Fracktail.BOT.getPrivateChannel(i.getID());
+                dm(channel, params[2]);
+            }
+            reply(msg, "They've been messaged.");
+        };
+        CMDS.add(new Command("message\\s+((?:<@\\S+>\\s*,?\\s*)+)\\s+saying\\s+(.+)", "I send a message to someone.", 0, msgLogic));
     }
 }
