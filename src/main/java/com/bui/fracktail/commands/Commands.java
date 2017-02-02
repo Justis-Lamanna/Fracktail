@@ -155,6 +155,6 @@ public class Commands
             }
             reply(msg, "They've been messaged.");
         };
-        CMDS.add(new Command("message\\s+((?:<@\\S+>\\s*,?\\s*)+)\\s+saying\\s+(.+)", "I send a message to someone.", 0, msgLogic));
+        CMDS.add(new Command("message\\s+((?:<@\\S+>\\s*,?\\s*(?:and)?\\s*)+)\\s+saying\\s+(.+)", "I send a message to someone.", 0, msgLogic));
     }
 }
