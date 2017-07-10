@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IPrivateChannel;
@@ -23,11 +25,15 @@ import sx.blah.discord.util.RateLimitException;
  *
  * @author justislamanna
  */
+@Component
 public class Commands
 {
     private static final Logger LOG = Logger.getLogger(Commands.class.getName());
     
     private static final ArrayList<Command> CMDS = new ArrayList<>();
+    
+    @Autowired
+    static Fracktail fracktail;
     
     private Commands(){}
     
@@ -105,9 +111,9 @@ public class Commands
     public static void initialize(){
         CMDS.add(new Command("log\\s*(out|off)", "I log off.", 2, 
             (IMessage msg, String... params) -> {
-                if(msg.getAuthor() == Fracktail.BOT.getMaster()){
+                if(msg.getAuthor() == fracktail.getMaster()){
                     reply(msg, "Goodbye.");
-                    Fracktail.BOT.logout();
+                    fracktail.logout();
                 }
                 else{
                     reply(msg, "No fuck you.");
@@ -115,7 +121,7 @@ public class Commands
         }));
         CMDS.add(new Command("clean.*up!*", "I remove the last 100 messages from the chat.", 2, 
             (IMessage msg, String... params) -> {
-                IChannel channel = Fracktail.BOT.getChannel(msg.getChannel().getID());
+                IChannel channel = fracktail.getChannel(msg.getChannel().getID());
                 MessageList messages = channel.getMessages();
                 try{
                     messages.deleteAfter(0);
@@ -130,11 +136,11 @@ public class Commands
         }));
         CMDS.add(new Command("clean\\s+up\\s+and\\s+log\\s*(out|off)", "I remove the last 100 messages in the chat and log off.", 2, 
                 (IMessage msg, String... params) -> {
-                IChannel channel = Fracktail.BOT.getChannel(msg.getChannel().getID());
+                IChannel channel = fracktail.getChannel(msg.getChannel().getID());
                 MessageList messages = channel.getMessages();
                 try{
                     messages.deleteAfter(0);
-                    Fracktail.BOT.logout();
+                    fracktail.logout();
                 } catch (RateLimitException ex) {
                     LOG.log(Level.SEVERE, "Rate limit exceeded.", ex);
                 } catch (DiscordException ex) {
@@ -145,12 +151,12 @@ public class Commands
         }));
         Logic msgLogic = (msg, params) -> {
             List<IUser> mentions = msg.getMentions();
-            mentions.remove(Fracktail.BOT.getSelf());
+            mentions.remove(fracktail.getSelf());
             if(mentions.isEmpty()){
                 reply(msg, "I can't message myself.");
             }
             for(IUser i : mentions){
-                IPrivateChannel channel = Fracktail.BOT.getPrivateChannel(i.getID());
+                IPrivateChannel channel = fracktail.getPrivateChannel(i.getID());
                 dm(channel, params[2]);
             }
             reply(msg, "They've been messaged.");

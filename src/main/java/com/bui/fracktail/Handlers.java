@@ -50,7 +50,7 @@ public class Handlers
         IMessage msg = message.getMessage();
         String content = msg.getContent();
         String[] split = content.split(" +", 2);
-        if(split[0].equalsIgnoreCase("f,")){
+        if(split[0].equalsIgnoreCase(Constants.PREFIX)){
             LOG.log(Level.INFO, "Messaged by {0}({2}):{1}", new Object[]{msg.getAuthor().getName(), msg.getContent(), msg.getAuthor().getID()});
             String stripped = split[1].trim();
             Command ex = Commands.getCommand(stripped);

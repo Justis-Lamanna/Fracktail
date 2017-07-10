@@ -6,8 +6,12 @@
 package com.bui.fracktail;
 
 import com.bui.fracktail.commands.Commands;
+import com.bui.fracktail.data.FracktailDB;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
@@ -31,19 +35,25 @@ import sx.blah.discord.util.RateLimitException;
  * method. To view the actual commands, I'll place them in the readme.
  * @author justislamanna
  */
-public enum Fracktail
-{
-    /**The instance of Fracktail.*/
-    BOT;
+@Component
+public class Fracktail{
     
-    private final String TOKEN = System.getProperty("Token");
     private final Logger LOG = Logger.getLogger(Fracktail.class.getName());
     
     private IDiscordClient client;
     
-    private Fracktail(){
+    @Autowired
+    private FracktailDB db;
+    private String token;
+    
+    public Fracktail(String token){
+        this.token = token;
+    }
+    
+    public void connect(){
+        LOG.log(Level.INFO, "Building Fracktail...{0}", token);
         ClientBuilder builder = new ClientBuilder();
-        builder.withToken(TOKEN);
+        builder.withToken(token);
         try{
             client = builder.build();
             client.getDispatcher().registerListener(new Handlers());
@@ -74,6 +84,7 @@ public enum Fracktail
     public void logout(){
         try{
             client.logout();
+            db.close();
             System.exit(0);
         }
         catch(DiscordException ex){
